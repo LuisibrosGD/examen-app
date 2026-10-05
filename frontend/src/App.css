@@ -1,0 +1,17 @@
+.health-card {
+  width: min(100%, 560px);
+  padding: 32px;
+  border: 1px solid #dce3ec;
+  border-radius: 16px;
+  background: white;
+}
+h1 { margin: 0 0 20px; font-size: 32px; }
+h2 { font-size: 20px; font-weight: 500; }
+pre {
+  padding: 20px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  overflow-x: auto;
+}
+.success { color: #166534; }
+.error { color: #b91c1c; }

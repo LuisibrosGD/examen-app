@@ -1,0 +1,59 @@
+# Variables de entorno y secretos locales
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+
+# Python: entornos virtuales y archivos generados
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+
+# Pruebas, cobertura y herramientas de Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# React, Vite y Node.js
+node_modules/
+dist/
+dist-ssr/
+.vite/
+coverage/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Configuración local de despliegue
+.vercel/
+
+# Archivos temporales y registros
+*.log
+*.tmp
+*.swp
+*.swo
+*~
+
+# Configuración personal del editor
+.idea/
+.vscode/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+Desktop.ini
