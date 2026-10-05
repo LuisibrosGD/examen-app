@@ -6,20 +6,21 @@ from alembic import context
 from sqlalchemy import create_engine, pool
 
 from app.config import settings
+from app.models import Base
 
 config = context.config
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Se configurará con Base.metadata cuando se incorporen los modelos.
-target_metadata = None
+target_metadata = Base.metadata
+migration_url = (settings.database_url_direct or settings.database_url).get_secret_value()
 
 
 def run_migrations_offline() -> None:
     """Genera SQL sin abrir una conexión con Neon."""
     context.configure(
-        url=settings.database_url.get_secret_value(),
+        url=migration_url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -31,9 +32,9 @@ def run_migrations_offline() -> None:
 def run_migrations_online() -> None:
     """Ejecuta migraciones mediante la conexión directa configurada."""
     connectable = create_engine(
-        settings.database_url.get_secret_value(),
+        migration_url,
         poolclass=pool.NullPool,
-        connect_args={"connect_timeout": 10},
+        connect_args={"connect_timeout": 10} if migration_url.startswith("postgresql") else {},
     )
     try:
         with connectable.connect() as connection:

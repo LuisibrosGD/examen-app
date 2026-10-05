@@ -135,10 +135,15 @@ respuesta(intento_id FK, pregunta_id FK, opcion_id FK)   -- PK compuesta
 ## 7. Despliegue
 - **Neon**: usar la cadena *pooled* para la app y la *directa* para Alembic. Siempre `sslmode=require`.
 - **Render** (Web Service, root `backend/`): build `pip install -r requirements.txt`; start `uvicorn app.main:app --host 0.0.0.0 --port $PORT`. Migraciones con `alembic upgrade head` ejecutado manualmente.
-- **Vercel** (root `frontend/`): framework Vite. Añadir `vercel.json` con rewrite a `index.html` para React Router.
+- **Vercel** (root `frontend/`): framework Vite. La conexión de producción queda definida mediante **`/api` con rewrite hacia Render**. La configuración está en `frontend/vercel.json`, junto a `package.json`:
+  - `/api/:path*` → `https://examen-app-pudc.onrender.com/:path*`.
+  - `/(.*)` → `/index.html` para React Router, después del rewrite de la API.
+  - El navegador llama a `https://examen-app-lyart.vercel.app/api/health`; Vercel reenvía a `https://examen-app-pudc.onrender.com/health`. Esta conexión usa el mismo origen del frontend y no requiere CORS entre el navegador y Render.
 - Variables:
   - Backend: `DATABASE_URL`, `SECRET_KEY`, `CORS_ORIGINS`, `ACCESS_TOKEN_MINUTES`
-  - Frontend: `VITE_API_URL`
+  - Frontend en Vercel: `VITE_API_URL=/api`. `App.jsx` usa `import.meta.env.VITE_API_URL || "/api"` y llama a `${API}/health`. No configurar la URL completa de Render para esta conexión. Los cambios de variables `VITE_` requieren un nuevo build y despliegue.
+- **Local**: `frontend/.env` contiene `VITE_API_URL=http://localhost:8000`; el navegador llama directamente a FastAPI, que permite CORS desde `http://localhost:5173`.
+- **Verificación de producción completada**: `/api/health` respondió HTTP 200 con `{"status":"ok","database":"ok"}` y la página principal mostró `API: ok | BD: ok` tras Ctrl+Shift+R. Los dos archivos de conexión se subieron en el commit `d5632b8` (`usar rewrite /api`).
 - Render gratis se "duerme": el frontend debe mostrar estado de carga/reintento en la primera petición.
 - Ninguna credencial en el repo (`.env` en `.gitignore`).
 

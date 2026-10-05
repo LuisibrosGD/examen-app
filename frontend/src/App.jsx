@@ -1,22 +1,25 @@
-import { useEffect, useState } from "react";
-
-const API = import.meta.env.VITE_API_URL || "/api";
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
+import AuthPage from './pages/AuthPage'
+import Home from './pages/Home'
 
 export default function App() {
-  const [estado, setEstado] = useState("Conectando...");
-
-  useEffect(() => {
-    fetch(`${API}/health`)
-      .then((r) => r.json())
-      .then((d) => setEstado(`API: ${d.status} | BD: ${d.database}`))
-      .catch((e) => setEstado(`Error: ${e.message}`));
-  }, []);
-
   return (
-    <div style={{ padding: 24 }}>
-      <h1>Examen App</h1>
-      <h3>Estado de conexión</h3>
-      <p>{estado}</p>
-    </div>
-  );
+    <BrowserRouter>
+      <AuthProvider>
+        <div style={{ padding: 24 }}>
+          <h1>Examen App</h1>
+          <Routes>
+            <Route path="/login" element={<AuthPage key="login" />} />
+            <Route path="/registro" element={<AuthPage key="registro" register />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<Home />} />
+            </Route>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      </AuthProvider>
+    </BrowserRouter>
+  )
 }
