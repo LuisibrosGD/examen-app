@@ -141,6 +141,7 @@ respuesta(intento_id FK, pregunta_id FK, opcion_id FK)   -- PK compuesta
   - El navegador llama a `https://examen-app-lyart.vercel.app/api/health`; Vercel reenvía a `https://examen-app-pudc.onrender.com/health`. Esta conexión usa el mismo origen del frontend y no requiere CORS entre el navegador y Render.
 - Variables:
   - Backend: `DATABASE_URL`, `SECRET_KEY`, `CORS_ORIGINS`, `ACCESS_TOKEN_MINUTES`
+  - En Render, el **valor** de `CORS_ORIGINS` debe ser la lista JSON `["https://examen-app-lyart.vercel.app"]`, sin anteponer `CORS_ORIGINS=`. Una URL sola impide arrancar el backend. `ACCESS_TOKEN_MINUTES=1440` (guardar solo `1440` como valor).
   - Frontend en Vercel: `VITE_API_URL=/api`. `App.jsx` usa `import.meta.env.VITE_API_URL || "/api"` y llama a `${API}/health`. No configurar la URL completa de Render para esta conexión. Los cambios de variables `VITE_` requieren un nuevo build y despliegue.
 - **Local**: `frontend/.env` contiene `VITE_API_URL=http://localhost:8000`; el navegador llama directamente a FastAPI, que permite CORS desde `http://localhost:5173`.
 - **Verificación de producción completada**: `/api/health` respondió HTTP 200 con `{"status":"ok","database":"ok"}` y la página principal mostró `API: ok | BD: ok` tras Ctrl+Shift+R. Los dos archivos de conexión se subieron en el commit `d5632b8` (`usar rewrite /api`).
@@ -151,6 +152,14 @@ respuesta(intento_id FK, pregunta_id FK, opcion_id FK)   -- PK compuesta
 Mover carpetas, exportar a PDF, dashboard Power BI, compartir exámenes entre usuarios, recuperación de contraseña, edición de preguntas en la web, temporizador, roles/admin.
 
 ## 9. Plan por rebanadas
+**Estado verificado el 5 de octubre de 2026: rebanadas 0 y 1 terminadas y funcionando en producción.**
+
+- Migración `7b124df901ac` aplicada en Neon mediante `DATABASE_URL_DIRECT`; creó solo `usuario` y la tabla estaba vacía antes de las pruebas.
+- Registro, login, `/auth/me`, rutas protegidas y sesión tras recarga comprobados en local y en Vercel → `/api` → Render → Neon.
+- Email duplicado y contraseña incorrecta comprobados en la interfaz local; token inválido devuelve 401. Pruebas del backend: 16 aprobadas; lint y build de React aprobados.
+- Token JWT Bearer en `sessionStorage`, restauración con `/auth/me` y limpieza de sesión al expirar o recibir 401. El commit de implementación es `bde1ba4`.
+- Se rotaron las conexiones de Neon y la clave JWT; los secretos permanecen en los entornos y no en Git. Las pruebas integradas crearon dos cuentas sintéticas con emails `prueba-local-*` y `prueba-vercel-*`.
+
 Cada rebanada = BD + backend + frontend de UNA funcionalidad, funcionando de punta a punta. Al terminar: pruebo, `git commit` y abro **chat nuevo**.
 
 | # | Rebanada | Criterio de aceptación |
